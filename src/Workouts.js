@@ -2,6 +2,7 @@ import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import nbLocale from "@fullcalendar/core/locales/nb";
+import Map from "./Map";
 import sports from "./public/sports";
 
 const userid = new URLSearchParams(window.location.search).get("userid");
@@ -83,9 +84,8 @@ export default function Workouts() {
             </h2>
             <h3>{sportNames[currentEvent.details.sport]}</h3>
             <p>{currentEvent.details.message}</p>
-            <div
-              style={{ display: "flex", flexWrap: "wrap", margin: "0 -8px" }}
-            >
+
+            <div style={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
               {currentEvent.details.pictures.map((picture) => (
                 <img
                   style={{
@@ -97,6 +97,10 @@ export default function Workouts() {
                   alt=""
                 />
               ))}
+            </div>
+
+            <div style={{ margin: "16px 0" }}>
+              <Map activity={currentEvent.details} />
             </div>
           </>
         )}
