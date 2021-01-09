@@ -54,25 +54,27 @@ export default function Workouts() {
 
     const history = (
       await Promise.all(
-        months
-          .filter((date) => date < new Date(2021, 0, 1))
-          .map(async (date) => {
-            const month = (date.getMonth() + 1).toString().padStart(2, "0");
-            const data = await fetch(
-              `data/${userid}/history-${date.getFullYear()}-${month}.json`
-            );
+        months.map(async (date) => {
+          const month = (date.getMonth() + 1).toString().padStart(2, "0");
+          const data = await fetch(
+            `download/${userid}/history-${date.getFullYear()}-${month}.json`
+          );
+          if (data.status === 200) {
             return data.json();
-          })
+          }
+        })
       )
-    ).flat();
+    )
+      .flat()
+      .filter((x) => x != null);
 
     setEvents(historyToEvents(history));
   }
 
   async function fetchEvent(id) {
-    const data = await fetch(`data/${userid}/workout-${id}-details.json`);
+    const data = await fetch(`download/${userid}/workout-${id}-details.json`);
     const details = await data.json();
-    console.log(details);
+    const details = await detailsResponse.json();
     setCurrentEvent({ details });
   }
 
