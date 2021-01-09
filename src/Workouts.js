@@ -3,11 +3,11 @@ import Modal from "react-modal";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import Map from "./Map";
-import sports from "./public/sports";
+import sports from "./endomondo-download/public/sports";
 
 Modal.setAppElement("#root");
 
-const userid = new URLSearchParams(window.location.search).get("userid");
+const dataPath = new URLSearchParams(window.location.search).get("dataPath");
 
 const sportNames = Object.keys(sports);
 const dateAndTimeFormat = new Intl.DateTimeFormat("en-GB", {
@@ -65,7 +65,7 @@ export default function Workouts() {
         months.map(async (date) => {
           const month = (date.getMonth() + 1).toString().padStart(2, "0");
           const data = await fetch(
-            `download/${userid}/history-${date.getFullYear()}-${month}.json`
+            `${dataPath}/history-${date.getFullYear()}-${month}.json`
           );
           if (data.status === 200) {
             return data.json();
@@ -81,15 +81,15 @@ export default function Workouts() {
 
   async function fetchEvent(id) {
     const detailsResponse = await fetch(
-      `download/${userid}/workout-${id}-details.json`
+      `${dataPath}/workout-${id}-details.json`
     );
     const details = await detailsResponse.json();
     const feedResponse = await fetch(
-      `download/${userid}/workout-${id}-feed-${details.feed_id}.json`
+      `${dataPath}/workout-${id}-feed-${details.feed_id}.json`
     );
     const feed = await feedResponse.json();
     const commentsResponse = await fetch(
-      `download/${userid}/workout-${id}-comments.json`
+      `${dataPath}/workout-${id}-comments.json`
     );
     let comments;
     if (commentsResponse.status === 200) {
