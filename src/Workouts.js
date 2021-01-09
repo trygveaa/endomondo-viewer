@@ -10,10 +10,18 @@ Modal.setAppElement("#root");
 const userid = new URLSearchParams(window.location.search).get("userid");
 
 const sportNames = Object.keys(sports);
+const dateAndTimeFormat = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "full",
+  timeStyle: "medium",
+});
 
 function formatSport(sport) {
   const name = sportNames[sport].replace(/_/g, " ");
   return name[0].toUpperCase() + name.slice(1).toLowerCase();
+}
+
+function formatTime(timeString) {
+  return dateAndTimeFormat.format(new Date(timeString));
 }
 
 function historyToEvents(history) {
@@ -72,10 +80,26 @@ export default function Workouts() {
   }
 
   async function fetchEvent(id) {
-    const data = await fetch(`download/${userid}/workout-${id}-details.json`);
-    const details = await data.json();
+    const detailsResponse = await fetch(
+      `download/${userid}/workout-${id}-details.json`
+    );
     const details = await detailsResponse.json();
-    setCurrentEvent({ details });
+    const feedResponse = await fetch(
+      `download/${userid}/workout-${id}-feed-${details.feed_id}.json`
+    );
+    const feed = await feedResponse.json();
+    const commentsResponse = await fetch(
+      `download/${userid}/workout-${id}-comments.json`
+    );
+    let comments;
+    if (commentsResponse.status === 200) {
+      const commentsJson = await commentsResponse.json();
+      comments = commentsJson.data;
+    } else {
+      comments = feed.comments;
+    }
+    comments.reverse();
+    setCurrentEvent({ details, feed, comments });
   }
 
   function changePictureRelative(relativeIndex) {
@@ -119,12 +143,7 @@ export default function Workouts() {
 
         {currentEvent && (
           <>
-            <h2>
-              {new Intl.DateTimeFormat("en-GB", {
-                dateStyle: "full",
-                timeStyle: "medium",
-              }).format(new Date(currentEvent.details.local_start_time))}
-            </h2>
+            <h2>{formatTime(currentEvent.details.local_start_time)}</h2>
             <h3>{formatTitle(currentEvent.details)}</h3>
             <p>{currentEvent.details.message}</p>
             <p>{currentEvent.details.notes}</p>
@@ -158,6 +177,35 @@ export default function Workouts() {
             <div style={{ margin: "16px 0" }}>
               <Map activity={currentEvent.details} />
             </div>
+
+            {currentEvent.feed.tagged_with.length !== 0 && (
+              <p>
+                <strong>Tagged:</strong>{" "}
+                {currentEvent.feed.tagged_with
+                  .map((tag) => tag.name)
+                  .join(", ")}
+              </p>
+            )}
+            {currentEvent.feed.likes.length !== 0 && (
+              <p>
+                <strong>Likes:</strong>{" "}
+                {currentEvent.feed.likes.map((tag) => tag.name).join(", ")}
+              </p>
+            )}
+
+            {currentEvent.comments.length !== 0 && (
+              <>
+                <h4 style={{ marginBottom: 0 }}>Comments:</h4>
+                {currentEvent.comments.map((comment) => (
+                  <p key={comment.id}>
+                    <strong>{comment.author.name}</strong> (
+                    {formatTime(comment.timestamp)}):
+                    <br />
+                    {comment.text}
+                  </p>
+                ))}
+              </>
+            )}
 
             <Modal
               isOpen={currentPicture != null}
