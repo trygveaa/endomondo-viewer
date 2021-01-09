@@ -1,15 +1,21 @@
 import { useRef, useState } from "react";
 import Modal from "react-modal";
+import MonthPicker from "react-month-picker";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import Map from "./Map";
 import sports from "./endomondo-download/public/sports";
+import "react-month-picker/css/month-picker.css";
 
 Modal.setAppElement("#root");
 
 const dataPath = new URLSearchParams(window.location.search).get("dataPath");
 
 const sportNames = Object.keys(sports);
+const monthAndYearFormat = new Intl.DateTimeFormat("en-GB", {
+  year: "numeric",
+  month: "long",
+});
 const dateAndTimeFormat = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "full",
   timeStyle: "medium",
@@ -46,9 +52,23 @@ export default function Workouts() {
   const [events, setEvents] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [currentPicture, setCurrentPicture] = useState(null);
+  const calendar = useRef(null);
   const modalContent = useRef(null);
+  const monthPicker = useRef(null);
 
-  async function fetchHistory(dates) {
+  async function datesSet(dates) {
+    const year = dates.view.currentStart.getFullYear();
+    monthPicker.current.setState({
+      rawValue: {
+        ...monthPicker.current.state.rawValue,
+        year,
+        month: dates.view.currentStart.getMonth() + 1,
+      },
+      yearIndexes: [
+        monthPicker.current.state.years.findIndex((x) => x.year === year),
+      ],
+    });
+
     const months = [];
     const monthToAdd = new Date(dates.start);
     monthToAdd.setDate(1);
@@ -102,6 +122,11 @@ export default function Workouts() {
     setCurrentEvent({ details, feed, comments });
   }
 
+  function changeMonth(year, month) {
+    monthPicker.current.dismiss();
+    calendar.current.getApi().gotoDate(new Date(year, month - 1));
+  }
+
   function changePictureRelative(relativeIndex) {
     const pictures = currentEvent.details.pictures;
     const currentIndex = pictures.findIndex(
@@ -130,15 +155,101 @@ export default function Workouts() {
       <div style={{ margin: "0 16px" }}>
         <h1>Activities from Endomondo</h1>
 
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "stretch",
+          }}
+        >
+          <MonthPicker
+            ref={monthPicker}
+            years={{ min: 2000 }}
+            value={{ year: 2020, month: 12 }}
+            lang={{
+              months: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+              ],
+              from: "From",
+              to: "To",
+            }}
+            onChange={changeMonth}
+          >
+            <button
+              type="button"
+              style={{
+                margin: 0,
+                padding: 0,
+                border: "unset",
+                font: "unset",
+                background: "unset",
+                cursor: "pointer",
+              }}
+              onClick={() => monthPicker.current.show()}
+            >
+              <h2 style={{ height: "100%", margin: 0 }}>
+                {monthAndYearFormat.format(
+                  calendar.current?.getApi().getDate()
+                )}
+              </h2>
+            </button>
+          </MonthPicker>
+
+          <div className="fc fc-media-screen fc-direction-ltr fc-theme-standard">
+            <div className="fc-header-toolbar fc-toolbar ">
+              <div className="fc-toolbar-chunk">
+                <button
+                  type="button"
+                  className="fc-today-button fc-button fc-button-primary"
+                  onClick={() => calendar.current.getApi().today()}
+                >
+                  today
+                </button>
+                <div className="fc-button-group">
+                  <button
+                    type="button"
+                    className="fc-prev-button fc-button fc-button-primary"
+                    aria-label="prev"
+                    onClick={() => calendar.current.getApi().prev()}
+                  >
+                    <span className="fc-icon fc-icon-chevron-left"></span>
+                  </button>
+                  <button
+                    type="button"
+                    className="fc-next-button fc-button fc-button-primary"
+                    aria-label="next"
+                    onClick={() => calendar.current.getApi().next()}
+                  >
+                    <span className="fc-icon fc-icon-chevron-right"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <FullCalendar
+          ref={calendar}
           plugins={[dayGridPlugin]}
           firstDay={1}
           aspectRatio={1.8}
-          initialDate="2020-10-31"
+          initialDate="2020-12-31"
           initialView="dayGridMonth"
           events={events}
           eventClick={(event) => fetchEvent(event.event.id)}
-          datesSet={fetchHistory}
+          datesSet={datesSet}
+          headerToolbar={false}
         />
 
         {currentEvent && (
