@@ -12,10 +12,15 @@ const userid = new URLSearchParams(window.location.search).get("userid");
 
 const sportNames = Object.keys(sports);
 
+function formatSport(sport) {
+  const name = sportNames[sport].replace(/_/g, " ");
+  return name[0].toUpperCase() + name.slice(1).toLowerCase();
+}
+
 function historyToEvents(history) {
   return history.map((activity) => ({
     id: activity.id,
-    title: Object.keys(sports)[activity.sport],
+    title: formatSport(activity.sport),
     start: new Date(activity.local_start_time),
     allDay: true,
   }));
@@ -110,7 +115,7 @@ export default function Workouts() {
                 timeStyle: "medium",
               }).format(new Date(currentEvent.details.local_start_time))}
             </h2>
-            <h3>{sportNames[currentEvent.details.sport]}</h3>
+            <h3>{formatSport(currentEvent.details.sport)}</h3>
             <p>{currentEvent.details.message}</p>
 
             <div style={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
