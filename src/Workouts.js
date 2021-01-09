@@ -127,6 +127,16 @@ export default function Workouts() {
             <h3>{formatTitle(currentEvent.details)}</h3>
             <p>{currentEvent.details.message}</p>
             <p>{currentEvent.details.notes}</p>
+            <p>
+              <strong>Distanse:</strong>{" "}
+              {currentEvent.details.distance.toFixed(2)} km
+            </p>
+            <p>
+              <strong>Varighet:</strong>{" "}
+              {new Date(currentEvent.details.duration * 1000)
+                .toISOString()
+                .substr(11, 8)}
+            </p>
 
             <div style={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
               {currentEvent.details.pictures.map((picture) => (
