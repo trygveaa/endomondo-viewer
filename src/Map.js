@@ -75,12 +75,19 @@ export default function Map({ activity }) {
           }}
         />
       </Source>
-      <Marker longitude={points[0].longitude} latitude={points[0].latitude}>
+      <Marker
+        longitude={points[0].longitude}
+        latitude={points[0].latitude}
+        offsetLeft={-6}
+        offsetTop={-16}
+      >
         <FontAwesomeIcon icon={faMapMarkerAlt} />
       </Marker>
       <Marker
         longitude={points[points.length - 1].longitude}
         latitude={points[points.length - 1].latitude}
+        offsetLeft={-1}
+        offsetTop={-18}
       >
         <FontAwesomeIcon icon={faFlagCheckered} />
       </Marker>
