@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMapGL, { Layer, Source, WebMercatorViewport } from "react-map-gl";
+import mapboxgl from "mapbox-gl";
 import bbox from "@turf/bbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 function activityToGeoJson(activity) {
   return {
