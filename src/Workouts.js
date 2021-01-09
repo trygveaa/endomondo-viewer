@@ -26,6 +26,15 @@ function historyToEvents(history) {
   }));
 }
 
+function formatTitle(details) {
+  const sportName = formatSport(details.sport);
+  if (details.title) {
+    return `${sportName}: ${details.title}`;
+  } else {
+    return sportName;
+  }
+}
+
 export default function Workouts() {
   const [events, setEvents] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
@@ -115,8 +124,9 @@ export default function Workouts() {
                 timeStyle: "medium",
               }).format(new Date(currentEvent.details.local_start_time))}
             </h2>
-            <h3>{formatSport(currentEvent.details.sport)}</h3>
+            <h3>{formatTitle(currentEvent.details)}</h3>
             <p>{currentEvent.details.message}</p>
+            <p>{currentEvent.details.notes}</p>
 
             <div style={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
               {currentEvent.details.pictures.map((picture) => (
