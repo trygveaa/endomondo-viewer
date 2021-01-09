@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import Modal from "react-modal";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import nbLocale from "@fullcalendar/core/locales/nb";
 import Map from "./Map";
 import sports from "./public/sports";
 
@@ -103,11 +102,11 @@ export default function Workouts() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
       <div style={{ margin: "0 16px" }}>
-        <h1>Aktiviteter fra Endomondo</h1>
+        <h1>Activities from Endomondo</h1>
 
         <FullCalendar
           plugins={[dayGridPlugin]}
-          locale={nbLocale}
+          firstDay={1}
           aspectRatio={1.8}
           initialDate="2020-10-31"
           initialView="dayGridMonth"
@@ -119,7 +118,7 @@ export default function Workouts() {
         {currentEvent && (
           <>
             <h2>
-              {new Intl.DateTimeFormat("nb-NO", {
+              {new Intl.DateTimeFormat("en-GB", {
                 dateStyle: "full",
                 timeStyle: "medium",
               }).format(new Date(currentEvent.details.local_start_time))}
@@ -128,11 +127,11 @@ export default function Workouts() {
             <p>{currentEvent.details.message}</p>
             <p>{currentEvent.details.notes}</p>
             <p>
-              <strong>Distanse:</strong>{" "}
+              <strong>Distance:</strong>{" "}
               {currentEvent.details.distance.toFixed(2)} km
             </p>
             <p>
-              <strong>Varighet:</strong>{" "}
+              <strong>Duration:</strong>{" "}
               {new Date(currentEvent.details.duration * 1000)
                 .toISOString()
                 .substr(11, 8)}

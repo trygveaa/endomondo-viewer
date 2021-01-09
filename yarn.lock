@@ -1172,15 +1172,6 @@
     ical.js "^1.4.0"
     tslib "^2.0.3"
 
-"@fullcalendar/core@^5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-5.5.0.tgz#08373ce9b68a88ea3d48caf7a682a8261d90a3c7"
-  integrity sha512-NHyrH6AP1zRRCWsK0NuY/bZFQes1UaGB2pukMv86A0Yq1BI7Y7m9u/yH7D0/ZCaNkCLVxrSlIwAOtMQxPPITdg==
-  dependencies:
-    "@fullcalendar/common" "~5.5.0"
-    preact "^10.0.5"
-    tslib "^2.0.3"
-
 "@fullcalendar/daygrid@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-5.5.0.tgz#48f943d070a07f88cd6f8170fb757d3038239bd6"
@@ -8869,11 +8860,6 @@ potpack@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/potpack/-/potpack-1.0.1.tgz#d1b1afd89e4c8f7762865ec30bd112ab767e2ebf"
   integrity sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==
-
-preact@^10.0.5:
-  version "10.5.8"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.5.8.tgz#96e71e2caadf60b5ff901f0e4772a46ba0756336"
-  integrity sha512-8d0FfBX3O0ay34i15mTckXicSsvaQLemPUByXTyfQUxDeFqZhbtnftVZMNqX3zEJLHcy1bqRu9t+V4GqJtG1TQ==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
