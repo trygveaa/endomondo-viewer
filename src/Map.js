@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import ReactMapGL, { Layer, Source, WebMercatorViewport } from "react-map-gl";
-import mapboxgl from "mapbox-gl";
+import ReactMapGL, {
+  Layer,
+  Marker,
+  Source,
+  WebMercatorViewport,
+} from "react-map-gl";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFlagCheckered,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import bbox from "@turf/bbox";
+import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -25,6 +35,7 @@ export default function Map({ activity }) {
   const activityGeoJson = useMemo(() => activityToGeoJson(activity), [
     activity,
   ]);
+  const points = activity.points.points;
 
   /* eslint-disable-next-line react-hooks/exhaustive-deps */
   useEffect(() => fitMapToActivity(), [activity]);
@@ -64,6 +75,15 @@ export default function Map({ activity }) {
           }}
         />
       </Source>
+      <Marker longitude={points[0].longitude} latitude={points[0].latitude}>
+        <FontAwesomeIcon icon={faMapMarkerAlt} />
+      </Marker>
+      <Marker
+        longitude={points[points.length - 1].longitude}
+        latitude={points[points.length - 1].latitude}
+      >
+        <FontAwesomeIcon icon={faFlagCheckered} />
+      </Marker>
     </ReactMapGL>
   );
 }
