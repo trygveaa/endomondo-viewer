@@ -1,13 +1,16 @@
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Workouts from "./Workouts";
 import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Workouts />
-      </header>
-    </div>
+    <Router>
+      <Switch>
+        <Route path="/">
+          <Workouts />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

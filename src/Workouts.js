@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useLocation, useHistory } from "react-router-dom";
 import Modal from "react-modal";
 import MonthPicker from "react-month-picker";
 import FullCalendar from "@fullcalendar/react";
@@ -8,8 +9,6 @@ import sports from "./endomondo-download/public/sports";
 import "react-month-picker/css/month-picker.css";
 
 Modal.setAppElement("#root");
-
-const dataPath = new URLSearchParams(window.location.search).get("dataPath");
 
 const sportNames = Object.keys(sports);
 const monthAndYearFormat = new Intl.DateTimeFormat("en-GB", {
@@ -21,6 +20,10 @@ const dateAndTimeFormat = new Intl.DateTimeFormat("en-GB", {
   timeStyle: "medium",
 });
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function formatSport(sport) {
   const name = sportNames[sport].replace(/_/g, " ");
   return name[0].toUpperCase() + name.slice(1).toLowerCase();
@@ -30,10 +33,11 @@ function formatTime(timeString) {
   return dateAndTimeFormat.format(new Date(timeString));
 }
 
-function historyToEvents(history) {
+function historyToEvents(history, dataPath) {
   return history.map((activity) => ({
     id: activity.id,
     title: formatSport(activity.sport),
+    url: `?dataPath=${dataPath}&eventId=${activity.id}`,
     start: new Date(activity.local_start_time),
     allDay: true,
   }));
@@ -55,6 +59,40 @@ export default function Workouts() {
   const calendar = useRef(null);
   const modalContent = useRef(null);
   const monthPicker = useRef(null);
+
+  const history = useHistory();
+  const query = useQuery();
+  const dataPath = query.get("dataPath");
+  const eventId = query.get("eventId");
+
+  useEffect(() => {
+    async function fetchEvent(id) {
+      const detailsResponse = await fetch(
+        `${dataPath}/workout-${id}-details.json`
+      );
+      const details = await detailsResponse.json();
+      const feedResponse = await fetch(
+        `${dataPath}/workout-${id}-feed-${details.feed_id}.json`
+      );
+      const feed = await feedResponse.json();
+      const commentsResponse = await fetch(
+        `${dataPath}/workout-${id}-comments.json`
+      );
+      let comments;
+      if (commentsResponse.status === 200) {
+        const commentsJson = await commentsResponse.json();
+        comments = commentsJson.data;
+      } else {
+        comments = feed.comments;
+      }
+      comments.reverse();
+      setCurrentEvent({ details, feed, comments });
+    }
+
+    if (eventId) {
+      fetchEvent(eventId);
+    }
+  }, [dataPath, eventId]);
 
   async function datesSet(dates) {
     const year = dates.view.currentStart.getFullYear();
@@ -96,30 +134,7 @@ export default function Workouts() {
       .flat()
       .filter((x) => x != null);
 
-    setEvents(historyToEvents(history));
-  }
-
-  async function fetchEvent(id) {
-    const detailsResponse = await fetch(
-      `${dataPath}/workout-${id}-details.json`
-    );
-    const details = await detailsResponse.json();
-    const feedResponse = await fetch(
-      `${dataPath}/workout-${id}-feed-${details.feed_id}.json`
-    );
-    const feed = await feedResponse.json();
-    const commentsResponse = await fetch(
-      `${dataPath}/workout-${id}-comments.json`
-    );
-    let comments;
-    if (commentsResponse.status === 200) {
-      const commentsJson = await commentsResponse.json();
-      comments = commentsJson.data;
-    } else {
-      comments = feed.comments;
-    }
-    comments.reverse();
-    setCurrentEvent({ details, feed, comments });
+    setEvents(historyToEvents(history, dataPath));
   }
 
   function changeMonth(year, month) {
@@ -148,6 +163,13 @@ export default function Workouts() {
     } else if (event.key === "ArrowRight") {
       changePictureRelative(1);
     }
+  }
+
+  function eventClick(event) {
+    event.jsEvent.preventDefault();
+    history.push({
+      search: `?dataPath=${dataPath}&eventId=${event.event.id}`,
+    });
   }
 
   return (
@@ -247,7 +269,7 @@ export default function Workouts() {
           initialDate="2020-12-31"
           initialView="dayGridMonth"
           events={events}
-          eventClick={(event) => fetchEvent(event.event.id)}
+          eventClick={eventClick}
           datesSet={datesSet}
           headerToolbar={false}
         />
