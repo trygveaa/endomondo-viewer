@@ -89,6 +89,7 @@ export default function Workouts() {
       }
       comments.reverse();
       setCurrentEvent({ details, feed, comments });
+      calendar.current.getApi().gotoDate(new Date(details.local_start_time));
     }
 
     if (eventId) {
