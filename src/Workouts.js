@@ -33,11 +33,11 @@ function formatTime(timeString) {
   return dateAndTimeFormat.format(new Date(timeString));
 }
 
-function historyToEvents(history, dataPath) {
+function historyToEvents(history, dataPath, userId) {
   return history.map((activity) => ({
     id: activity.id,
     title: formatSport(activity.sport),
-    url: `?dataPath=${dataPath}&eventId=${activity.id}`,
+    url: `?dataPath=${dataPath}&userId=${userId}&eventId=${activity.id}`,
     start: new Date(activity.local_start_time),
     allDay: true,
   }));
@@ -63,20 +63,22 @@ export default function Workouts() {
   const history = useHistory();
   const query = useQuery();
   const dataPath = query.get("dataPath");
+  const userId = query.get("userId");
+  const dataPathWithUserId = `${dataPath}/${userId}`;
   const eventId = query.get("eventId");
 
   useEffect(() => {
     async function fetchEvent(id) {
       const detailsResponse = await fetch(
-        `${dataPath}/workout-${id}-details.json`
+        `${dataPathWithUserId}/workout-${id}-details.json`
       );
       const details = await detailsResponse.json();
       const feedResponse = await fetch(
-        `${dataPath}/workout-${id}-feed-${details.feed_id}.json`
+        `${dataPathWithUserId}/workout-${id}-feed-${details.feed_id}.json`
       );
       const feed = await feedResponse.json();
       const commentsResponse = await fetch(
-        `${dataPath}/workout-${id}-comments.json`
+        `${dataPathWithUserId}/workout-${id}-comments.json`
       );
       let comments;
       if (commentsResponse.status === 200) {
@@ -92,7 +94,7 @@ export default function Workouts() {
     if (eventId) {
       fetchEvent(eventId);
     }
-  }, [dataPath, eventId]);
+  }, [dataPathWithUserId, eventId]);
 
   async function datesSet(dates) {
     const year = dates.view.currentStart.getFullYear();
@@ -123,7 +125,7 @@ export default function Workouts() {
         months.map(async (date) => {
           const month = (date.getMonth() + 1).toString().padStart(2, "0");
           const data = await fetch(
-            `${dataPath}/history-${date.getFullYear()}-${month}.json`
+            `${dataPathWithUserId}/history-${date.getFullYear()}-${month}.json`
           );
           if (data.status === 200) {
             return data.json();
@@ -134,7 +136,7 @@ export default function Workouts() {
       .flat()
       .filter((x) => x != null);
 
-    setEvents(historyToEvents(history, dataPath));
+    setEvents(historyToEvents(history, dataPath, userId));
   }
 
   function changeMonth(year, month) {
@@ -157,6 +159,10 @@ export default function Workouts() {
     }
   }
 
+  function getPictureUrl(picture) {
+    return picture.url.replace("https://www.endomondo.com", dataPath);
+  }
+
   function onKeyDownModal(event) {
     if (event.key === "ArrowLeft") {
       changePictureRelative(-1);
@@ -168,7 +174,7 @@ export default function Workouts() {
   function eventClick(event) {
     event.jsEvent.preventDefault();
     history.push({
-      search: `?dataPath=${dataPath}&eventId=${event.event.id}`,
+      search: `?dataPath=${dataPath}&userId=${userId}&eventId=${event.event.id}`,
     });
   }
 
@@ -300,7 +306,7 @@ export default function Workouts() {
                     objectFit: "contain",
                   }}
                   key={picture.id}
-                  src={picture.url}
+                  src={getPictureUrl(picture)}
                   alt=""
                   onClick={() => setCurrentPicture(picture)}
                 />
@@ -379,7 +385,7 @@ export default function Workouts() {
                     minHeight: 0,
                     objectFit: "contain",
                   }}
-                  src={currentPicture?.url}
+                  src={currentPicture ? getPictureUrl(currentPicture) : null}
                   alt=""
                 />
               </div>
