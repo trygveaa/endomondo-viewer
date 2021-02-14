@@ -358,6 +358,22 @@ export default function Workouts() {
               </>
             )}
 
+            <p>
+              <a
+                href={`${dataPathWithUserId}/workout-${currentEvent.details.id}-export.gpx`}
+                download
+              >
+                Last ned GPX-fil
+              </a>
+              <br />
+              <a
+                href={`${dataPathWithUserId}/workout-${currentEvent.details.id}-export.tcx`}
+                download
+              >
+                Last ned TCX-fil
+              </a>
+            </p>
+
             <Modal
               isOpen={currentPicture != null}
               style={{ overlay: { zIndex: 2 } }}
