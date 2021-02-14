@@ -299,17 +299,28 @@ export default function Workouts() {
 
             <div style={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
               {currentEvent.details.pictures.map((picture) => (
-                <img
+                <a
+                  key={picture.id}
+                  href={getPictureUrl(picture)}
                   style={{
                     width: "calc(33.333333% - 16px)",
                     margin: "8px",
-                    objectFit: "contain",
                   }}
-                  key={picture.id}
-                  src={getPictureUrl(picture)}
-                  alt=""
-                  onClick={() => setCurrentPicture(picture)}
-                />
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPicture(picture);
+                  }}
+                >
+                  <img
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                    src={getPictureUrl(picture)}
+                    alt=""
+                  />
+                </a>
               ))}
             </div>
 
