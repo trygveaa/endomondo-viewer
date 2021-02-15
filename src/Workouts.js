@@ -287,10 +287,12 @@ export default function Workouts() {
             <h3>{formatTitle(currentEvent.details)}</h3>
             <p>{currentEvent.details.message}</p>
             <p>{currentEvent.details.notes}</p>
-            <p>
-              <strong>Distance:</strong>{" "}
-              {currentEvent.details.distance.toFixed(2)} km
-            </p>
+            {currentEvent.details.distance && (
+              <p>
+                <strong>Distance:</strong>{" "}
+                {currentEvent.details.distance.toFixed(2)} km
+              </p>
+            )}
             <p>
               <strong>Duration:</strong>{" "}
               {new Date(currentEvent.details.duration * 1000)
