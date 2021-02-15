@@ -17,25 +17,26 @@ import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
-function activityToGeoJson(activity) {
+function activityToGeoJson(points) {
   return {
     type: "Feature",
     geometry: {
       type: "LineString",
-      coordinates: activity.points.points.map((point) => [
-        point.longitude,
-        point.latitude,
-      ]),
+      coordinates: points.map((point) => [point.longitude, point.latitude]),
     },
   };
 }
 
 export default function Map({ activity }) {
   const [viewport, setViewport] = useState({});
-  const activityGeoJson = useMemo(() => activityToGeoJson(activity), [
-    activity,
-  ]);
-  const points = activity.points.points;
+  const points = useMemo(
+    () =>
+      activity.points.points.filter(
+        (point) => point.longitude != null && point.latitude != null
+      ),
+    [activity]
+  );
+  const activityGeoJson = useMemo(() => activityToGeoJson(points), [points]);
 
   /* eslint-disable-next-line react-hooks/exhaustive-deps */
   useEffect(() => fitMapToActivity(), [activity]);
