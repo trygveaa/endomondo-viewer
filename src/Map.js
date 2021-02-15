@@ -31,18 +31,19 @@ export default function Map({ activity }) {
   const [viewport, setViewport] = useState({});
   const points = useMemo(
     () =>
-      activity.points.points.filter(
+      activity.points.points?.filter(
         (point) => point.longitude != null && point.latitude != null
-      ),
+      ) ?? [],
     [activity]
   );
+
   const activityGeoJson = useMemo(() => activityToGeoJson(points), [points]);
 
   /* eslint-disable-next-line react-hooks/exhaustive-deps */
   useEffect(() => fitMapToActivity(), [activity]);
 
   function fitMapToActivity() {
-    if (viewport.width) {
+    if (viewport.width && points.length !== 0) {
       const [minLng, minLat, maxLng, maxLat] = bbox(activityGeoJson);
       const newViewport = new WebMercatorViewport(viewport).fitBounds(
         [
@@ -55,6 +56,10 @@ export default function Map({ activity }) {
       );
       setViewport(newViewport);
     }
+  }
+
+  if (points.length === 0) {
+    return null;
   }
 
   return (
